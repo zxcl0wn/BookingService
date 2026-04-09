@@ -18,7 +18,5 @@ class BookingCreate(BookingBase):
 
 
 class BookingUpdate(BaseModel):
-    user_id: int|None = None
-    room_id: int|None = None
     check_in: datetime|None = None
     check_out: datetime|None = None
