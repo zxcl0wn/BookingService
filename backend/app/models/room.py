@@ -10,7 +10,7 @@ class Room(Base):
     title = Column(String, unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True, default=True)
     address = Column(String, nullable=False)
-    date = Column(DateTime, default=datetime.datetime.now(datetime.UTC))  # Формат поля
+    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))  # Формат поля
     price_per_night = Column(Integer, nullable=False)
     owner_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     rating = Column(Float, nullable=True, default=None)
