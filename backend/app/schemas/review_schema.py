@@ -17,6 +17,9 @@ class ReviewCreate(ReviewBase):
 class ReviewResponse(ReviewBase):
     created_at: datetime = Field(..., description="Review created at")
 
+    class Config:
+        from_attributes = True
+
 
 class ReviewUpdate(BaseModel):
     rating: int|None = None

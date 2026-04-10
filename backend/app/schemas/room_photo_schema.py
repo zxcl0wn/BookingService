@@ -7,6 +7,9 @@ class RoomPhotoResponse(BaseModel):
     photo_url: str = Field(..., description="Photo URL")
     is_main: bool = Field(..., description="Is main photo")
 
+    class Config:
+        from_attributes = True
+
 
 class RoomPhotoUpdate(BaseModel):
     is_main: bool|None = None

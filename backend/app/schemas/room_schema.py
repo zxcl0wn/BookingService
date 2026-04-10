@@ -18,6 +18,9 @@ class RoomResponse(RoomBase):
     created_at: datetime = Field(..., description="Room created at")
     owner_id: int = Field(..., description="Owner ID")
 
+    class Config:
+        from_attributes = True
+
 
 class RoomUpdate(BaseModel):
     title: str|None = None

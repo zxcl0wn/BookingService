@@ -8,6 +8,9 @@ class TagBase(BaseModel):
 class TagResponse(TagBase):
     id: int = Field(..., description="ID")
 
+    class Config:
+        from_attributes = True
+
 
 class TagCreate(TagBase):
     ...

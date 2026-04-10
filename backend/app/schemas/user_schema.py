@@ -14,6 +14,9 @@ class UserResponse(UserBase):
     created_at: datetime = Field(..., description="Created At")
     photo: str|None = Field(None, description="Photo")
 
+    class Config:
+        from_attributes = True
+
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=5, max_length=30)

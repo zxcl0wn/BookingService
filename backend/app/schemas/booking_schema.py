@@ -12,6 +12,9 @@ class BookingBase(BaseModel):
 class BookingResponse(BookingBase):
     id: int = Field(..., description="ID")
 
+    class Config:
+        from_attributes = True
+
 
 class BookingCreate(BookingBase):
     ...
