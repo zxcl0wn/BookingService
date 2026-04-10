@@ -19,7 +19,7 @@ class UserResponse(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=5, max_length=30)
+    password: str = Field(..., min_length=5)
 
 
 class UserUpdate(BaseModel):
