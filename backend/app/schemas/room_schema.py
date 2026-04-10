@@ -6,7 +6,6 @@ class RoomBase(BaseModel):
     description: str|None = Field(None, min_length=20, max_length=200, description="Room description")
     address: str = Field(..., min_length=10, max_length=100, description="Room address")
     price_per_night: int = Field(..., ge=1, description="Price per night")
-    owner_id: int = Field(..., description="Owner ID")
 
 
 class RoomCreate(RoomBase):
@@ -17,6 +16,7 @@ class RoomResponse(RoomBase):
     id: int = Field(..., description="ID")
     rating: float|None = Field(None, ge=1, le=10, description="Room rating")
     created_at: datetime = Field(..., description="Room created at")
+    owner_id: int = Field(..., description="Owner ID")
 
 
 class RoomUpdate(BaseModel):
