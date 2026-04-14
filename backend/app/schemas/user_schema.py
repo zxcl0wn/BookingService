@@ -13,6 +13,7 @@ class UserResponse(UserBase):
     id: int = Field(..., description="ID")
     created_at: datetime = Field(..., description="Created At")
     photo: str|None = Field(None, description="Photo")
+    password: str = Field(..., description="Hashed password")
 
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from ..models import Review
+from sqlalchemy.sql import func
 
 
 class ReviewRepository:
@@ -37,3 +38,7 @@ class ReviewRepository:
             self.db.commit()
             return review
         return None
+
+    def avg_rating(self) -> float:
+        sum_rating = self.db.query(func.sum(Review.rating)).scalar()
+        return sum_rating / len(sum_rating)

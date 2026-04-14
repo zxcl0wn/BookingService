@@ -8,7 +8,7 @@ router = APIRouter(
     prefix="/rooms",
     tags=["Rooms"]
 )
-
+# TODO: add auth, jwt
 @router.get("/", response_model=list[RoomResponse])
 async def get_rooms(db: Session = Depends(get_db)):
     service = RoomService(db)
@@ -22,7 +22,7 @@ async def get_room(room_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=RoomResponse)
-async def create_room(room: RoomCreate, db: Session = Depends(get_db)):
+async def create_room(room: RoomCreate, db: Session = Depends(get_db), ):
     service = RoomService(db)
     return service.create(room)
 

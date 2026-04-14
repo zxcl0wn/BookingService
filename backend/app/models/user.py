@@ -11,6 +11,6 @@ class User(Base):
     email = Column(String, unique=True, nullable=True, default=None)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    phone = Column(Integer, nullable=True, default=None)
+    phone = Column(Integer, unique=True, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now(datetime.UTC))
     photo = Column(String, nullable=True, default=None)

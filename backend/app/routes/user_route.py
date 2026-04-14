@@ -4,10 +4,12 @@ from ..schemas import UserResponse, UserCreate, UserUpdate
 from ..database import get_db
 from ..services import UserService
 
+
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
+
 
 @router.get("/", response_model=list[UserResponse])
 async def get_users(db: Session = Depends(get_db)):
@@ -37,3 +39,4 @@ async def put_user(room_id: int, user_data: UserUpdate, db: Session = Depends(ge
 async def delete_user(room_id: int, db: Session = Depends(get_db)):
     service = UserService(db)
     return service.delete(room_id)
+

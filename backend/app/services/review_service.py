@@ -6,6 +6,7 @@ from ..schemas.review_schema import ReviewCreate, ReviewUpdate, ReviewResponse
 
 class ReviewService:
     def __init__(self, db: Session):
+        self.db = db
         self.review_repository = ReviewRepository(db)
         self.user_repository = UserRepository(db)
         self.room_repository = RoomRepository(db)
@@ -29,6 +30,8 @@ class ReviewService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
         new_review = self.review_repository.create(review.model_dump())
+        room.rating = self.review_repository.avg_rating()
+        self.db.commit()
         return ReviewResponse.model_validate(new_review)
 
     def update(self, review_id: int, review_data: ReviewUpdate) -> ReviewResponse:
