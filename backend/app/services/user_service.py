@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from ..models import User
 from ..repositories import UserRepository
 from sqlalchemy.orm import Session
 from ..schemas.user_schema import UserResponse, UserCreate, UserUpdate
@@ -49,3 +50,9 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return UserResponse.model_validate(user)
 
+
+    def get_user_by_username(self, username: str) -> User:
+        user = self.db.get_user_by_username(username)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        return UserResponse.model_validate(user)
