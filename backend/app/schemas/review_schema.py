@@ -22,7 +22,6 @@ class ReviewResponse(ReviewBase):
 
 
 class ReviewUpdate(BaseModel):
-    rating: int|None = None
-    title: str|None = None
-    comment: str|None = None
-
+    rating: int|None = Field(None, ge=1, le=10, description="Review rating")
+    title: str|None = Field(None, min_length=5, max_length=25, description="Review title")
+    comment: str|None = Field(None, min_length=5, max_length=100, description="Review comment")

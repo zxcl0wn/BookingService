@@ -12,4 +12,4 @@ class RoomPhotoResponse(BaseModel):
 
 
 class RoomPhotoUpdate(BaseModel):
-    is_main: bool|None = None
+    is_main: bool|None = Field(None, description="Is main photo")

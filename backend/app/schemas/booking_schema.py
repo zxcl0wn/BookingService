@@ -21,5 +21,5 @@ class BookingCreate(BookingBase):
 
 
 class BookingUpdate(BaseModel):
-    check_in: datetime|None = None
-    check_out: datetime|None = None
+    check_in: datetime|None = Field(None, description="Check-in date")
+    check_out: datetime|None = Field(None, description="Check-out date")
