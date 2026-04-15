@@ -17,4 +17,4 @@ class TagCreate(TagBase):
 
 
 class TagUpdate(BaseModel):
-    title: str|None = None
+    title: str|None = Field(None, description="Tag title")

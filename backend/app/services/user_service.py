@@ -55,4 +55,4 @@ class UserService:
         user = self.db.get_user_by_username(username)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        return UserResponse.model_validate(user)
+        return user

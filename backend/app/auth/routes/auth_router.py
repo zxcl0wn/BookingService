@@ -11,7 +11,7 @@ from ..models import Token
 from ...config import settings
 from ...database import get_db
 from ...models import User
-from ...schemas import UserCreate
+from ...schemas import UserCreate, UserResponse
 from ...services import UserService
 
 router = APIRouter(
@@ -74,6 +74,6 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserResponse)
 def me(user: User = Depends(get_current_user)):
     return user

@@ -16,7 +16,7 @@ class RoomRepository:
         new_room = Room(**room)
         self.db.add(new_room)
         self.db.commit()
-        self.db.refresh(room)
+        self.db.refresh(new_room)
         return new_room
 
     def update(self, room_id: int, room_data: dict) -> Room|None:

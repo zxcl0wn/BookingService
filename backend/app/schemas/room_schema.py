@@ -23,7 +23,7 @@ class RoomResponse(RoomBase):
 
 
 class RoomUpdate(BaseModel):
-    title: str|None = None
-    description: str|None = None
-    address: str|None = None
-    price_per_night: int|None = None
+    title: str|None = Field(None, min_length=10, max_length=30, description="Room title")
+    description: str|None = Field(None, min_length=20, max_length=200, description="Room description")
+    address: str|None = Field(None, min_length=10, max_length=100, description="Room address")
+    price_per_night: int|None = Field(None, ge=1, description="Price per night")

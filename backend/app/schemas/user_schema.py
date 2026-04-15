@@ -24,8 +24,8 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    username: str|None = None
-    email: str|None = None
-    password: str|None = None
-    name: str|None = None
-    phone: int|None = None
+    username: str|None = Field(None, min_length=5, max_length=20, description="Username")
+    email: str|None = Field(None, description="Email")
+    password: str|None = Field(None, description="Hashed password")
+    name: str|None = Field(None, min_length=5, max_length=30, description="Name")
+    phone: int|None = Field(None, description="Phone")
