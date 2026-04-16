@@ -3,13 +3,13 @@ from datetime import datetime
 
 
 class BookingBase(BaseModel):
-    user_id: int = Field(..., description="User ID")
-    room_id: int = Field(..., description="Room ID")
     check_in: datetime = Field(..., description="Check-in date")
     check_out: datetime = Field(..., description="Check-out date")
 
 
 class BookingResponse(BookingBase):
+    user_id: int = Field(..., description="User ID")
+    room_id: int = Field(..., description="Room ID")
     id: int = Field(..., description="ID")
 
     class Config:

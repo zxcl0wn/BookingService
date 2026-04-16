@@ -23,27 +23,42 @@ class BookingService:
         return BookingResponse.model_validate(booking)
 
 
-    def create(self, booking: BookingCreate) -> BookingResponse:
-        room = self.room_repository.get_by_id(booking.room_id)
-        user = self.user_repository.get_by_id(booking.user_id)
+    def create(self,
+               booking: BookingCreate,
+               room_id: int,
+               current_user_id: int,
+               ) -> BookingResponse:
+        room = self.room_repository.get_by_id(room_id)
+        user = self.user_repository.get_by_id(current_user_id)
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Room not found")
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User not found")
 
-        new_booking = self.booking_repository.create(booking.model_dump())  # TODO: Проверка дат
+        booking_data = booking.model_dump()
+        booking_data['user_id'] = current_user_id
+        booking_data['room_id'] = room_id
+        new_booking = self.booking_repository.create(booking_data)  # TODO: Проверка дат
         return BookingResponse.model_validate(new_booking)
 
 
-    def update(self, booking_id: int, booking_data: BookingUpdate) -> BookingResponse|None:
-        booking = self.booking_repository.update(booking_id, booking_data.model_dump())
+    def update(self, booking_id: int, booking_data: BookingUpdate, current_user_id: int) -> BookingResponse|None:
+        booking = self.booking_repository.get_by_id(booking_id)
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
-        return BookingResponse.model_validate(booking)
+        if current_user_id != booking.user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+
+        updated_booking = self.booking_repository.update(booking_id, booking_data.model_dump())
+        return BookingResponse.model_validate(updated_booking)
 
 
-    def delete(self, booking_id: int) -> BookingResponse:
-        booking = self.booking_repository.delete(booking_id)
+    def delete(self, booking_id: int, current_user_id: int) -> BookingResponse:
+        booking = self.booking_repository.get_by_id(booking_id)
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
-        return BookingResponse.model_validate(booking)
+        if current_user_id != booking.user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+
+        deleted_booking = self.booking_repository.delete(booking_id)
+        return BookingResponse.model_validate(deleted_booking)
