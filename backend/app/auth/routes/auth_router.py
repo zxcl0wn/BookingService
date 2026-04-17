@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -26,7 +24,6 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     return service.create(user_data)
 
 
-
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -39,6 +36,7 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
 
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)

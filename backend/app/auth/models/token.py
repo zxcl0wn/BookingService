@@ -7,6 +7,5 @@ class Token(BaseModel):
     token_type: str = "Bearer"
 
 
-
 class TokenData(BaseModel):
     username: str | None = None

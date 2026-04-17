@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta, datetime, timezone
 from typing import Annotated
 from dotenv import load_dotenv
@@ -21,10 +22,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def authenticate_user(username: str, password: str, db: Session):
     user = UserRepository(db).get_user_by_username(username)
-    if not user:
+    if user:
+        hashed_password = user.password
+    else:
+        hashed_password = os.getenv("DUMMY_HASHED_PASSWORD")
+
+    is_verified = verify_password(password, hashed_password)
+    if not is_verified:
         return False
-    if not verify_password(password, user.password):
-        return False
+
     return user
 
 
