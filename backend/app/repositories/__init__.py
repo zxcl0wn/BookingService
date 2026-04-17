@@ -3,3 +3,4 @@ from .review_repository import ReviewRepository
 from .tag_repository import TagRepository
 from .user_repository import UserRepository
 from .room_repository import RoomRepository
+from .tag_room_repository import TagRoomRepository

@@ -10,6 +10,7 @@ router = APIRouter(
     tags=["Tags"]
 )
 
+
 @router.get("/", response_model=list[TagResponse])
 async def get_tags(db: Session = Depends(get_db)):
     service = TagService(db)

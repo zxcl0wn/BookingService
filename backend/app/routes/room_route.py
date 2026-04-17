@@ -53,3 +53,25 @@ async def delete_room(
 ):
     service = RoomService(db)
     return service.delete(room_id, current_user_id.id)
+
+
+@router.post("/{room_id}/tags", response_model=RoomResponse)
+async def add_tags(
+        room_id: int,
+        tag_ids: list[int],
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
+    service = RoomService(db)
+    return service.add_tags(room_id, tag_ids, current_user.id)
+
+
+@router.delete("/{room_id}/tags", response_model=RoomResponse)
+async def delete_tags(
+        room_id: int,
+        tag_ids: list[int],
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    service = RoomService(db)
+    return service.delete_tags(room_id, tag_ids, current_user.id)
