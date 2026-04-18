@@ -26,4 +26,4 @@ app.include_router(auth_router)
 
 @app.on_event("startup")
 async def startup():
-    init_db()
+    await init_db()

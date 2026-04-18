@@ -26,7 +26,7 @@ def authenticate_user(username: str, password: str, db: Session):
         hashed_password = user.password
     else:
         hashed_password = os.getenv("DUMMY_HASHED_PASSWORD")
-
+    
     is_verified = verify_password(password, hashed_password)
     if not is_verified:
         return False

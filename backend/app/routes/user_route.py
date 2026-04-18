@@ -30,9 +30,9 @@ async def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserResponse)
-async def put_user(room_id: int, user_data: UserUpdate, db: Session = Depends(get_db)):
+async def put_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db)):
     service = UserService(db)
-    return service.update(room_id, user_data)
+    return service.update(user_id, user_data)
 
 
 @router.delete("/{user_id}", response_model=UserResponse)

@@ -1,19 +1,19 @@
 from pydantic import BaseModel
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 
-class DbSettings(BaseModel):
-    url: str = "sqlite:///test.db"
-    echo: bool = True
+class DbSettings(BaseSettings):
+    url: str = f'postgresql+asyncpg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@{os.getenv("DB_HOST")}:{os.getenv("DB_PORT")}/{os.getenv("DB_NAME")}'
+    echo: bool = False
 
 
-class AuthJWT(BaseModel):
+class AuthJWT(BaseSettings):
     secret_key: str = os.getenv("SECRET_KEY")
     algorithm: str = os.getenv("ALGORITHM")
-    dummy_password: str = os.getenv("DUMMY_PASSWORD")
+    dummy_password: str = os.getenv("DUMMY_HASHED_PASSWORD")
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
     refresh_token_expire_days: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 

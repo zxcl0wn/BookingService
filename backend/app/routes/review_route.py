@@ -23,7 +23,7 @@ async def get_review(review_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ReviewResponse)
-async def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
+async def create_review(review: ReviewCreate, db: Session = Depends(get_db)):  # TODO
     service = ReviewService(db)
     return service.create(review)
 

@@ -13,3 +13,4 @@ class Review(Base):
     title = Column(String, nullable=False)
     comment = Column(Text, nullable=True, default=None)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.now(datetime.UTC))
+    booking_code: str = Column(String, unique=True, nullable=False)

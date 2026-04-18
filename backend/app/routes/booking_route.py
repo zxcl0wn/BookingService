@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 from ..auth.services.auth_services import get_current_user
 from ..models import User
-from ..schemas import BookingResponse, BookingCreate, BookingUpdate
-from ..services import BookingService
+from ..schemas import BookingResponse, BookingCreate, BookingUpdate, ReviewCreate, ReviewResponse
+from ..services import BookingService, ReviewService
 from ..database import get_db
 
 
@@ -54,3 +54,16 @@ async def delete_booking(
 ):
     service = BookingService(db)
     return service.delete(booking_id, current_user.id)
+
+
+@router.post("/{booking_id}/review", response_model=ReviewResponse)
+async def create_review(
+        review: ReviewCreate,
+        booking_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    service = ReviewService(db)
+    return service.create(review, booking_id, current_user.id)
+
+# TODO: 1. Подключить постгрес, перенести эндпоинт в room, провести миграции

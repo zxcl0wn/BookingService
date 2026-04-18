@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Float
 from ..database import Base
 import datetime
+from sqlalchemy.orm import relationship
 
 
 class Room(Base):
@@ -14,3 +15,5 @@ class Room(Base):
     price_per_night = Column(Integer, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     rating = Column(Float, nullable=True, default=None)
+
+    tags = relationship("Tag", secondary="tag_rooms", lazy="joined")

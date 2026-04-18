@@ -1,39 +1,46 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import Tag
 
 
 class TagRepository:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def get_all(self) -> list[Tag]:
-        return self.db.query(Tag).all()
 
-    def get_by_id(self, tag_id: int) -> Tag|None:
+    async def get_all(self) -> list[Tag]:
+        result = await self.db.execute(select(Tag))
+        return result.scalars().all()
+
+
+    async def get_by_id(self, tag_id: int) -> Tag|None:
         return self.db.get(Tag, tag_id)
 
-    def create(self, tag: dict) -> Tag:
+
+    async def create(self, tag: dict) -> Tag:
         new_tag = Tag(**tag)
         self.db.add(new_tag)
-        self.db.commit()
-        self.db.refresh(new_tag)
+        await self.db.commit()
+        await self.db.refresh(new_tag)
         return new_tag
 
-    def update(self, tag_id: int, tag_data: dict) -> Tag|None:
-        tag = self.db.get(Tag, tag_id)
+
+    async def update(self, tag_id: int, tag_data: dict) -> Tag|None:
+        tag = await self.db.get(Tag, tag_id)
         if tag:
             for key, value in tag_data.items():
                 if value is not None:
                     setattr(tag, key, value)
-            self.db.commit()
-            self.db.refresh(tag)
+            await self.db.commit()
+            await self.db.refresh(tag)
             return tag
         return None
 
-    def delete(self, tag_id: int) -> Tag|None:
-        tag = self.db.get(Tag, tag_id)
+
+    async def delete(self, tag_id: int) -> Tag|None:
+        tag = await self.db.get(Tag, tag_id)
         if tag:
-            self.db.delete(tag)
-            self.db.commit()
+            await self.db.delete(tag)
+            await self.db.commit()
             return tag
         return None
