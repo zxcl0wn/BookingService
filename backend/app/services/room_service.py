@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 from ..repositories import RoomRepository, TagRepository, TagRoomRepository
-from sqlalchemy.orm import Session
 from ..schemas.room_schema import RoomUpdate, RoomCreate, RoomResponse
 
 
 class RoomService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.room_repository = RoomRepository(db)
         self.tag_repository = TagRepository(db)
         self.tag_room_repository = TagRoomRepository(db)

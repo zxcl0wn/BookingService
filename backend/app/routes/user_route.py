@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from ..schemas import UserResponse, UserCreate, UserUpdate
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..schemas import UserResponse, UserUpdate
 from ..database import get_db
 from ..services import UserService
 
@@ -12,31 +12,25 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[UserResponse])
-async def get_users(db: Session = Depends(get_db)):
+async def get_users(db: AsyncSession = Depends(get_db)):
     service = UserService(db)
-    return service.get_all()
+    return await service.get_all()
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int, db: Session = Depends(get_db)):
+async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     service = UserService(db)
-    return service.get_by_id(user_id)
-
-
-# @router.post("/", response_model=UserResponse)
-# async def create_user(user: UserCreate, db: Session = Depends(get_db)):
-#     service = UserService(db)
-#     return service.create(user)
+    return await service.get_by_id(user_id)
 
 
 @router.put("/{user_id}", response_model=UserResponse)
-async def put_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db)):
+async def put_user(user_id: int, user_data: UserUpdate, db: AsyncSession = Depends(get_db)):
     service = UserService(db)
-    return service.update(user_id, user_data)
+    return await service.update(user_id, user_data)
 
 
 @router.delete("/{user_id}", response_model=UserResponse)
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
     service = UserService(db)
-    return service.delete(user_id)
+    return await service.delete(user_id)
 

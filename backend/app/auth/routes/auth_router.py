@@ -1,6 +1,6 @@
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 from ..services.auth_services import authenticate_user, get_current_user
 from ...auth.utils.auth_utils import create_access_token, create_refresh_token
@@ -19,17 +19,17 @@ router = APIRouter(
 
 
 @router.post("/register")
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     service = UserService(db)
-    return service.create(user_data)
+    return await service.create(user_data)
 
 
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> Token:
-    user = authenticate_user(form_data.username, form_data.password, db)
+    user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -37,16 +37,16 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
     return Token(
         access_token=access_token,
-        refresh_token=refresh_token)
+        refresh_token=refresh_token
+    )
 
 
 @router.post("/refresh", response_model=Token)
-async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+async def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     payload = jwt.decode(refresh_token, key=settings.auth_jwt.secret_key, algorithms=[settings.auth_jwt.algorithm])
     if payload is None:
         raise HTTPException(
@@ -61,7 +61,7 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
             detail="Invalid refresh token"
         )
 
-    user = UserService(db).get_user_by_username(user_username)
+    user = await UserService(db).get_user_by_username(user_username)
 
     new_access_token = create_access_token(user)
 
@@ -73,5 +73,5 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-def me(user: User = Depends(get_current_user)):
+async def me(user: User = Depends(get_current_user)):
     return user

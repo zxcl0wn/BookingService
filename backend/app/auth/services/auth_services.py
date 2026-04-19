@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.token import TokenData
 from ...models import User
 from ...repositories import UserRepository
@@ -20,8 +20,8 @@ load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-def authenticate_user(username: str, password: str, db: Session):
-    user = UserRepository(db).get_user_by_username(username)
+async def authenticate_user(username: str, password: str, db: AsyncSession):
+    user = await UserRepository(db).get_user_by_username(username)
     if user:
         hashed_password = user.password
     else:
@@ -30,11 +30,10 @@ def authenticate_user(username: str, password: str, db: Session):
     is_verified = verify_password(password, hashed_password)
     if not is_verified:
         return False
-
     return user
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db:Session = Depends(get_db)):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db:AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
