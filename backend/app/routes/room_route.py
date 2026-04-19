@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..schemas import RoomResponse, RoomCreate, RoomUpdate
+from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate
 from ..database import get_db
-from ..services import RoomService
+from ..services import RoomService, ReviewService
 from ..auth.services.auth_services import get_current_user
 from ..models import User
 
@@ -55,6 +55,7 @@ async def delete_room(
     return await service.delete(room_id, current_user_id.id)
 
 
+# TAGS
 @router.post("/{room_id}/tags", response_model=RoomResponse)
 async def add_tags(
         room_id: int,
@@ -75,3 +76,16 @@ async def delete_tags(
 ):
     service = RoomService(db)
     return await service.delete_tags(room_id, tag_ids, current_user.id)
+
+
+# REVIEW
+@router.post("/{room_id}/review", response_model=ReviewResponse)
+async def create_review(
+        review: ReviewCreate,
+        room_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    service = ReviewService(db)
+    return await service.create(review, room_id, current_user.id)
+

@@ -46,3 +46,10 @@ class BookingRepository:
             await self.db.commit()
             return booking
         return None
+
+
+    async def get_booking_by_booking_code(self, booking_code: str) -> Booking|None:
+        booking = await self.db.execute(
+            select(Booking).where(Booking.booking_code==booking_code)
+        )
+        return booking.scalars().one_or_none()

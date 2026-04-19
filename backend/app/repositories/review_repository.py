@@ -38,7 +38,7 @@ class ReviewRepository:
 
 
     async def delete(self, review_id: int) -> Review|None:
-        review = self.db.get(Review, review_id)
+        review = await self.db.get(Review, review_id)
         if review:
             await self.db.delete(review)
             await self.db.commit()

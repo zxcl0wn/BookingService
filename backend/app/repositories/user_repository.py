@@ -15,7 +15,9 @@ class UserRepository:
 
 
     async def get_by_id(self, users_id: int) -> User|None:
-        result = await self.db.execute(select(User.id==users_id))
+        result = await self.db.execute(
+            select(User).where(User.id == users_id)
+        )
         return result.scalars().one_or_none()
 
 
@@ -62,4 +64,4 @@ class UserRepository:
 
     async def get_user_by_username(self, username: str) -> User|None:
         result = await self.db.execute(select(User).where(User.username==username))
-        return result.scalars().first()
+        return result.scalar_one_or_none()

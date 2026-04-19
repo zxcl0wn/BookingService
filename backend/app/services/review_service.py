@@ -26,35 +26,41 @@ class ReviewService:
         return ReviewResponse.model_validate(review)
 
 
-    async def create(self, review: ReviewCreate, booking_id: int, current_user_id: int) -> ReviewResponse:
-        booking = await self.booking_repository.get_by_id(booking_id)
-        if not booking:
+    async def create(self, review: ReviewCreate, room_id: int, current_user_id: int) -> ReviewResponse:
+        booking = await self.booking_repository.get_booking_by_booking_code(review.booking_code)
+        if not booking:  # Есть ли бронь
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
-        print(f'{booking.check_out = }')
-        print(f'{datetime.datetime.now(datetime.UTC) = }')
-        if booking.check_out > datetime.datetime.now(datetime.UTC):
+        if booking.check_out > datetime.datetime.now(datetime.UTC):  # Только после выезда
             raise HTTPException(400, "Stay not finished")
-        if booking.user_id != current_user_id:
+        if booking.user_id != current_user_id:   # Проверка на владельца брони
             raise HTTPException(400, "User is not the owner of this booking")
 
         existing = await self.review_repository.get_by_booking_code(review.booking_code)
         if existing:
             raise HTTPException(400, "Review already exists")
 
-        new_review = await self.review_repository.create(review.model_dump())
+        review_data = review.model_dump()
+        review_data["user_id"] = current_user_id
+        review_data["room_id"] = room_id
+        new_review = await self.review_repository.create(review_data)
         return ReviewResponse.model_validate(new_review)
 
 
-    async def update(self, review_id: int, review_data: ReviewUpdate) -> ReviewResponse:
+    async def update(self, review_id: int, review_data: ReviewUpdate, current_user_id: int) -> ReviewResponse:
         review = await self.review_repository.update(review_id, review_data.model_dump())
         if not review:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+        if current_user_id != review.user_id:
+            raise HTTPException(400, "User is not the owner of this review")
+
         return ReviewResponse.model_validate(review)
 
 
-    async def delete(self, review_id: int) -> ReviewResponse:
+    async def delete(self, review_id: int,  current_user_id: int) -> ReviewResponse:
         review = await self.review_repository.delete(review_id)
         if not review:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+        if current_user_id != review.user_id:
+            raise HTTPException(400, "User is not the owner of this review")
+
         return ReviewResponse.model_validate(review)
-    

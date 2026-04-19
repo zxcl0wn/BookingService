@@ -11,9 +11,9 @@ class Room(Base):
     title = Column(String, unique=True, nullable=False, index=True)
     description = Column(Text, nullable=True, default=True)
     address = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    created_at = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC))
     price_per_night = Column(Integer, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     rating = Column(Float, nullable=True, default=None)
 
-    tags = relationship("Tag", secondary="tag_rooms", lazy="joined")
+    tags = relationship("Tag", secondary="tag_rooms", lazy="selectin")

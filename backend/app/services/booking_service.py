@@ -62,3 +62,10 @@ class BookingService:  # TODO: Add async
 
         deleted_booking = await self.booking_repository.delete(booking_id)
         return BookingResponse.model_validate(deleted_booking)
+
+
+    async def get_booking_by_booking_code(self, booking_code: str) -> BookingResponse|None:
+        booking = await self.booking_repository.get_booking_by_booking_code(booking_code)
+        if not booking:
+            return None
+        return BookingResponse.model_validate(booking)

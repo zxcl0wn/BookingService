@@ -47,7 +47,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db:Asy
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = UserRepository(db).get_user_by_username(token_data.username)
+    user = await UserRepository(db).get_user_by_username(token_data.username)
     if user is None:
         raise credentials_exception
     return user
