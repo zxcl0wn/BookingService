@@ -48,6 +48,10 @@ class RoomService:
         if room.owner_id != current_user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
 
+        is_booking = await self.room_repository.is_booking_exist_by_room_id(room_id)
+        if is_booking:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room has bookings")
+
         deleted_room = await self.room_repository.delete(room_id)
         return RoomResponse.model_validate(deleted_room)
 

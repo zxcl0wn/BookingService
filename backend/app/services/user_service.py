@@ -32,22 +32,36 @@ class UserService:
             raise HTTPException(status_code=409, detail="User already exists")
 
 
-    async def update(self, user_id: int, user_data: UserUpdate) -> UserResponse:
+    async def update(self, user_id: int, user_data: UserUpdate, current_user_id: int) -> UserResponse:
         user = await self.db.get_by_id(user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        if current_user_id != user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update this user")
+
+        user_by_email = await self.db.get_user_by_email(user_data.email)
+        if user_by_email is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
+
+        user_by_phone = await self.db.get_user_by_phone(user_data.phone)
+        if user_by_phone is not None:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Phone already exists")
 
         try:
             updated_user = await self.db.update(user_id, user_data.model_dump())
             return UserResponse.model_validate(updated_user)
-        except:
+        except Exception as E:
+            print(E)
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to update user")
 
 
-    async def delete(self, user_id: int) -> UserResponse:
+    async def delete(self, user_id: int, current_user_id: int) -> UserResponse:
         user = await self.db.delete(user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        if current_user_id != user.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to delete this user")
+
         return UserResponse.model_validate(user)
 
 
@@ -56,3 +70,9 @@ class UserService:
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
+
+
+    # async def get_user_by_email(self, email: str) -> User:
+    #     user = await self.db.get_user_by_email(email)
+    #     if not user:
+    #         raise

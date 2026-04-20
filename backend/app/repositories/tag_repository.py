@@ -14,7 +14,7 @@ class TagRepository:
 
 
     async def get_by_id(self, tag_id: int) -> Tag|None:
-        return self.db.get(Tag, tag_id)
+        return await self.db.get(Tag, tag_id)
 
 
     async def create(self, tag: dict) -> Tag:

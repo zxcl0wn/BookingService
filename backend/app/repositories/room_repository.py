@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models import Room
+from ..models import Room, Booking
 from sqlalchemy import select
 
 class RoomRepository:
@@ -43,3 +43,12 @@ class RoomRepository:
             await self.db.commit()
             return room
         return None
+
+
+    async def is_booking_exist_by_room_id(self, room_id) -> bool:
+        bookings = await self.db.execute(
+            select(Booking).where(Booking.room_id==room_id).limit(1)
+        )
+        if bookings.scalar_one_or_none() is not None:
+            return True
+        return False

@@ -4,7 +4,7 @@ from ..repositories import BookingRepository, UserRepository, RoomRepository
 from ..schemas.booking_schema import BookingResponse, BookingCreate, BookingUpdate
 
 
-class BookingService:  # TODO: Add async
+class BookingService:
     def __init__(self, db: AsyncSession):
         self.booking_repository = BookingRepository(db)
         self.user_repository = UserRepository(db)
