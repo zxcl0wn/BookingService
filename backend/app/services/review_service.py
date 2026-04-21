@@ -34,6 +34,9 @@ class ReviewService:
             raise HTTPException(400, "Stay not finished")
         if booking.user_id != current_user_id:   # Проверка на владельца брони
             raise HTTPException(400, "User is not the owner of this booking")
+        owner = await self.booking_repository.get_room_owner_by_booking_id(booking.id)
+        if current_user_id == owner.id:
+            raise HTTPException(400, "The owner cannot write a review for himself.")
 
         existing = await self.review_repository.get_by_booking_code(review.booking_code)
         if existing:

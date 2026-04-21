@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate
+from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate, BookingResponse, BookingCreate
 from ..database import get_db
-from ..services import RoomService, ReviewService
+from ..services import RoomService, ReviewService, BookingService
 from ..auth.services.auth_services import get_current_user
 from ..models import User
 
@@ -89,3 +89,13 @@ async def create_review(
     service = ReviewService(db)
     return await service.create(review, room_id, current_user.id)
 
+
+@router.post("/{room_id}", response_model=BookingResponse)
+async def create_booking(
+        booking: BookingCreate,
+        room_id: int,
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    service = BookingService(db)
+    return await service.create(booking, room_id, current_user.id)

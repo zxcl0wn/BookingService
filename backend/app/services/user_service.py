@@ -70,9 +70,3 @@ class UserService:
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
-
-
-    # async def get_user_by_email(self, email: str) -> User:
-    #     user = await self.db.get_user_by_email(email)
-    #     if not user:
-    #         raise

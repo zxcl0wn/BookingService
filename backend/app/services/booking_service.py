@@ -30,10 +30,13 @@ class BookingService:
                ) -> BookingResponse:
         room = await self.room_repository.get_by_id(room_id)
         user = await self.user_repository.get_by_id(current_user_id)
+        room_owner = await self.user_repository.get_by_id(room.owner_id)
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Room not found")
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User not found")
+        if room_owner.id == current_user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="The owner cannot write to create a reservation for his room.")
 
         booking_data = booking.model_dump()
         booking_data['user_id'] = current_user_id
