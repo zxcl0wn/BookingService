@@ -40,11 +40,11 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update this user")
 
         user_by_email = await self.user_repository.get_user_by_email(user_data.email)
-        if user_by_email is not None:  # TODO: Проверка на поиск самого себя
+        if user_by_email is not None and user_by_email.id != user.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exists")
 
         user_by_phone = await self.user_repository.get_user_by_phone(user_data.phone)
-        if user_by_phone is not None:  # TODO: Проверка на поиск самого себя
+        if user_by_phone is not None and user_by_phone.id != user.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Phone already exists")
 
         # try:
