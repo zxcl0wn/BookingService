@@ -27,25 +27,19 @@ class BookingRepository:
         return new_booking
 
 
-    async def update(self, booking_id: int, booking_data: dict) -> Booking|None:
-        booking = await self.db.get(Booking, booking_id)
-        if booking:
-            for key, value in booking_data.items():
-                if value is not None:
-                    setattr(booking, key, value)
-            await self.db.commit()
-            await self.db.refresh(booking)
-            return booking
-        return None
+    async def update(self, booking: Booking, booking_data: dict) -> Booking:
+        for key, value in booking_data.items():
+            if value is not None:
+                setattr(booking, key, value)
+        await self.db.commit()
+        await self.db.refresh(booking)
+        return booking
 
 
-    async def delete(self, booking_id) -> Booking|None:
-        booking = await self.db.get(Booking, booking_id)
-        if booking:
-            await self.db.delete(booking)
-            await self.db.commit()
-            return booking
-        return None
+    async def delete(self, booking: Booking) -> Booking:
+        await self.db.delete(booking)
+        await self.db.commit()
+        return booking
 
 
     async def get_booking_by_booking_code(self, booking_code: str) -> Booking|None:

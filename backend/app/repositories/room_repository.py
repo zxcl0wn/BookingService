@@ -24,25 +24,19 @@ class RoomRepository:
         return new_room
 
 
-    async def update(self, room_id: int, room_data: dict) -> Room|None:
-        room = await self.db.get(Room, room_id)
-        if room:
-            for key, value in room_data.items():
-                if value is not None:
-                    setattr(room, key, value)
-            await self.db.commit()
-            await self.db.refresh(room)
-            return room
-        return None
+    async def update(self, room: Room, room_data: dict) -> Room:
+        for key, value in room_data.items():
+            if value is not None:
+                setattr(room, key, value)
+        await self.db.commit()
+        await self.db.refresh(room)
+        return room
 
 
-    async def delete(self, room_id: int) -> Room|None:
-        room = await self.db.get(Room, room_id)
-        if room:
-            await self.db.delete(room)
-            await self.db.commit()
-            return room
-        return None
+    async def delete(self, room: Room) -> Room:
+        await self.db.delete(room)
+        await self.db.commit()
+        return room
 
 
     async def is_booking_exist_by_room_id(self, room_id) -> bool:

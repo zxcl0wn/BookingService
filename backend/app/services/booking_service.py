@@ -50,21 +50,21 @@ class BookingService:
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
         if current_user_id != booking.user_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this booking")
 
-        updated_booking = await self.booking_repository.update(booking_id, booking_data.model_dump())
+        updated_booking = await self.booking_repository.update(booking, booking_data.model_dump())
         return BookingResponse.model_validate(updated_booking)
 
 
-    async def delete(self, booking_id: int, current_user_id: int) -> BookingResponse:  # TODO: лишний запрос в БД
+    async def delete(self, booking_id: int, current_user_id: int) -> BookingResponse:
         booking = await self.booking_repository.get_by_id(booking_id)
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
         if current_user_id != booking.user_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this booking")
 
-        deleted_booking = await self.booking_repository.delete(booking_id)
-        return BookingResponse.model_validate(deleted_booking)
+        await self.booking_repository.delete(booking)
+        return BookingResponse.model_validate(booking)
 
 
     async def get_booking_by_booking_code(self, booking_code: str) -> BookingResponse|None:

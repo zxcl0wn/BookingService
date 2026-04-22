@@ -37,8 +37,8 @@ class RoomService:
         if room.owner_id != current_user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
 
-        updated_room = await self.room_repository.update(room_id, room_data.model_dump())
-        return RoomResponse.model_validate(updated_room)
+        await self.room_repository.update(room, room_data.model_dump())
+        return RoomResponse.model_validate(room)
 
 
     async def delete(self, room_id: int, current_user_id: int) -> RoomResponse:
@@ -52,8 +52,8 @@ class RoomService:
         if is_booking:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room has bookings")
 
-        deleted_room = await self.room_repository.delete(room_id)
-        return RoomResponse.model_validate(deleted_room)
+        await self.room_repository.delete(room)
+        return RoomResponse.model_validate(room)
 
 
     async def add_tags(self, room_id: int, tag_ids: list[int], current_user_id: int) -> RoomResponse:

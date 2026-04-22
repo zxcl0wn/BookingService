@@ -16,7 +16,7 @@ class ReviewService:
 
     async def get_all(self) -> list[ReviewResponse]:
         reviews = await self.review_repository.get_all()
-        return [ReviewResponse.model_validate(review) for review in reviews]  # TODO: проверить ReviewResponse.model_validate(review, many=True)
+        return [ReviewResponse.model_validate(review) for review in reviews]
 
 
     async def get_by_id(self, review_id: int) -> ReviewResponse:
@@ -50,20 +50,22 @@ class ReviewService:
 
 
     async def update(self, review_id: int, review_data: ReviewUpdate, current_user_id: int) -> ReviewResponse:
-        review = await self.review_repository.update(review_id, review_data.model_dump())
+        review = await self.review_repository.get_by_id(review_id)
         if not review:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
         if current_user_id != review.user_id:
             raise HTTPException(400, "User is not the owner of this review")
 
+        await self.review_repository.update(review, review_data.model_dump())
         return ReviewResponse.model_validate(review)
 
 
     async def delete(self, review_id: int,  current_user_id: int) -> ReviewResponse:
-        review = await self.review_repository.delete(review_id)
+        review = await self.review_repository.get_by_id(review_id)
         if not review:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
         if current_user_id != review.user_id:
             raise HTTPException(400, "User is not the owner of this review")
 
+        await self.review_repository.delete(review)
         return ReviewResponse.model_validate(review)

@@ -13,6 +13,7 @@ class ReviewCreate(ReviewBase):
 
 
 class ReviewResponse(ReviewBase):
+    id: int = Field(..., description="Review ID")
     user_id: int = Field(..., description="User ID")
     room_id: int = Field(..., description="Room ID")
     created_at: datetime = Field(..., description="Review created at")

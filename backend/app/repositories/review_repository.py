@@ -25,25 +25,19 @@ class ReviewRepository:
         return new_review
 
 
-    async def update(self, review_id, review_data: dict) -> Review|None:
-        review = await self.db.get(Review, review_id)
-        if review:
-            for key, value in review_data.items():
-                if value is not None:
-                    setattr(review, key, value)
-            await self.db.commit()
-            await self.db.refresh(review)
-            return review
-        return None
+    async def update(self, review: Review, review_data: dict) -> Review:
+        for key, value in review_data.items():
+            if value is not None:
+                setattr(review, key, value)
+        await self.db.commit()
+        await self.db.refresh(review)
+        return review
 
 
-    async def delete(self, review_id: int) -> Review|None:
-        review = await self.db.get(Review, review_id)
-        if review:
-            await self.db.delete(review)
-            await self.db.commit()
-            return review
-        return None
+    async def delete(self, review: Review) -> Review:
+        await self.db.delete(review)
+        await self.db.commit()
+        return review
 
 
     async def avg_rating(self, room_id: int) -> float:  # TODO: Добавить корректный подсчёт рейтинга

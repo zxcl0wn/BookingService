@@ -25,22 +25,16 @@ class TagRepository:
         return new_tag
 
 
-    async def update(self, tag_id: int, tag_data: dict) -> Tag|None:
-        tag = await self.db.get(Tag, tag_id)
-        if tag:
-            for key, value in tag_data.items():
-                if value is not None:
-                    setattr(tag, key, value)
-            await self.db.commit()
-            await self.db.refresh(tag)
-            return tag
-        return None
+    async def update(self, tag: Tag, tag_data: dict) -> Tag:
+        for key, value in tag_data.items():
+            if value is not None:
+                setattr(tag, key, value)
+        await self.db.commit()
+        await self.db.refresh(tag)
+        return tag
 
 
-    async def delete(self, tag_id: int) -> Tag|None:
-        tag = await self.db.get(Tag, tag_id)
-        if tag:
-            await self.db.delete(tag)
-            await self.db.commit()
-            return tag
-        return None
+    async def delete(self, tag: Tag) -> Tag:
+        await self.db.delete(tag)
+        await self.db.commit()
+        return tag
