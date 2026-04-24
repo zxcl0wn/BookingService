@@ -1,11 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 from ..auth.services.auth_services import get_current_user
 from ..models import User
-from ..schemas import BookingResponse, BookingCreate, BookingUpdate, ReviewCreate, ReviewResponse
-from ..services import BookingService, ReviewService
-from ..database import get_db
+from ..schemas import BookingResponse, BookingUpdate
+from ..services import BookingService
+from ..core.database import get_db
 
 
 router = APIRouter(

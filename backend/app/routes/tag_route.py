@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas import TagResponse, TagCreate, TagUpdate
-from ..database import get_db
+from ..core.database import get_db
 from ..services import TagService
 
 

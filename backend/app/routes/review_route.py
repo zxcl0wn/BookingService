@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
+from sqlalchemy.util import await_only
 
 from ..auth.services.auth_services import get_current_user
 from ..models import User
-from ..services import ReviewService
-from ..schemas import ReviewResponse, ReviewCreate, ReviewUpdate
-from ..database import get_db
+from ..services import ReviewService, BookingService
+from ..schemas import ReviewResponse, ReviewUpdate
+from ..core.database import get_db
 
 
 router = APIRouter(
@@ -46,3 +46,13 @@ async def delete_review(
 ):
     service = ReviewService(db)
     return await service.delete(review_id, current_user.id)
+
+
+@router.post("/request-code")
+async def request_review_code(
+        booking_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    service = ReviewService(db)
+    return await service.request_review_code(booking_id, current_user.id)

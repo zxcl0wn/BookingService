@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer
-from ..database import Base
+from ..core.database import Base
 
 
 class Tag(Base):

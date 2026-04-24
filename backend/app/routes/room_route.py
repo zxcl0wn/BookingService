@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate, BookingResponse, BookingCreate
-from ..database import get_db
+from ..core.database import get_db
 from ..services import RoomService, ReviewService, BookingService
 from ..auth.services.auth_services import get_current_user
 from ..models import User

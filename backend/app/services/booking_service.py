@@ -72,3 +72,4 @@ class BookingService:
         if not booking:
             return None
         return BookingResponse.model_validate(booking)
+

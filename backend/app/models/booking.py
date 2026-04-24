@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import Column, ForeignKey, Integer, DateTime, String
-from ..database import Base
-from datetime import timezone
+from ..core.database import Base
+
 
 class Booking(Base):
     __tablename__ = "bookings"

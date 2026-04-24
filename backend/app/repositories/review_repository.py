@@ -54,6 +54,6 @@ class ReviewRepository:
 
     async def get_by_booking_code(self, booking_code: str) -> Review|None:
         result = await self.db.execute(
-            select(Review.booking_code==booking_code)
+            select(Review).where(Review.booking_code==booking_code)
         )
         return result.scalar_one_or_none()

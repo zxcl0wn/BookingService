@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta, datetime, timezone
 from typing import Annotated
 from dotenv import load_dotenv
 import jwt
@@ -11,9 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.token import TokenData
 from ...models import User
 from ...repositories import UserRepository
-from ...database import get_db
-from ...auth.utils.auth_utils import verify_password, create_jwt
-from ...config import settings
+from ...core.database import get_db
+from ...auth.utils.auth_utils import verify_password
+from ...core.config import settings
 load_dotenv()
 
 

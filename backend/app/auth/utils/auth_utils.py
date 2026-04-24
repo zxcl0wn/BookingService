@@ -3,7 +3,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
-from ...config import settings
+from ...core.config import settings
 from ...models import User
 load_dotenv()
 

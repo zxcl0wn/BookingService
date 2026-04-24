@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, String, Boolean, Integer
-from ..database import Base
+from ..core.database import Base
 
 
 class RoomPhoto(Base):

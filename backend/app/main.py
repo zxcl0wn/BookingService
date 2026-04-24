@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .database import init_db
+from .core.database import init_db
 from .routes.booking_route import router as booking_router
 from .routes.room_route import router as room_router
 from .routes.review_route import router as review_router

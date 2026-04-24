@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, DateTime, String
-from ..database import Base
+from ..core.database import Base
 import datetime
 
 
@@ -8,7 +8,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False, index=True)
-    email = Column(String, unique=True, nullable=True, default=None)
+    email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
     phone = Column(Integer, unique=True, nullable=True, default=None)
