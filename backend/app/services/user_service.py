@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import User
 from ..repositories import UserRepository
@@ -72,3 +72,9 @@ class UserService:
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
+
+    async def upload_photo(file: UploadFile|None = None):
+        if not file:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No file uploaded")
+
+        contents = await file.read()

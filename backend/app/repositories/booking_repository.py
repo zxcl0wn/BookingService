@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.util import await_only
 
@@ -61,3 +62,25 @@ class BookingRepository:
         )
         print(f'{owner = }')
         return owner.scalars().one_or_none()
+
+
+    async def check_availability(self,
+        room_id: int,
+        check_in: datetime.datetime,
+        check_out: datetime.datetime,
+        exclude_booking_id: int = None
+    ) -> bool:
+        query = select(Booking).where(
+            Booking.room_id==room_id,
+            Booking.check_in<check_out,
+            Booking.check_out>check_in
+        )
+
+        if exclude_booking_id:
+            query = query.where(Booking.id != exclude_booking_id)
+        result = await self.db.execute(query)
+        conflicting_bookings = result.scalars().all()
+
+        if len(conflicting_bookings)==0:
+            return True
+        return False

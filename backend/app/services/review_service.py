@@ -71,7 +71,6 @@ class ReviewService:
     async def create(self, review: ReviewCreate, room_id: int, current_user_id: int) -> ReviewResponse:
         user = await self.user_repository.get_by_id(current_user_id)
 
-
         booking = await self.booking_repository.get_booking_by_booking_code(review.booking_code)
         if not booking:  # Есть ли бронь
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
