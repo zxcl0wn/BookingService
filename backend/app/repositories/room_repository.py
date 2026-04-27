@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models import Room, Booking
-from sqlalchemy import select
+from ..models import Room, Booking, Review
+from sqlalchemy import select, func
+
 
 class RoomRepository:
     def __init__(self, db: AsyncSession):
@@ -46,3 +47,18 @@ class RoomRepository:
         if bookings.scalar_one_or_none() is not None:
             return True
         return False
+
+
+    async def avg_rating(self, room_id: int) -> None:
+        room = await self.db.get(Room, room_id)
+
+        sum_rating = await self.db.execute(
+            select(func.sum(Review.rating)).where(Review.room_id==room_id)
+        )
+        count_result = await self.db.execute(
+            select(func.count(Review.id)).where(Review.room_id == room_id)
+        )
+        sum_rating = sum_rating.scalar()
+        count = count_result.scalar()
+        room.rating = sum_rating / count if count else 0
+        await self.db.commit()

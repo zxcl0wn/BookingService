@@ -43,7 +43,7 @@ class BookingService:
         booking_data = booking.model_dump()
         booking_data['user_id'] = current_user_id
         booking_data['room_id'] = room_id
-        new_booking = await self.booking_repository.create(booking_data)  # TODO: Проверка дат
+        new_booking = await self.booking_repository.create(booking_data)
         return BookingResponse.model_validate(new_booking)
 
 

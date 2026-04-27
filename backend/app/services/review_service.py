@@ -90,6 +90,7 @@ class ReviewService:
         review_data["user_id"] = current_user_id
         review_data["room_id"] = room_id
         new_review = await self.review_repository.create(review_data)
+        await self.room_repository.avg_rating(room_id)
         return ReviewResponse.model_validate(new_review)
 
 
@@ -101,6 +102,7 @@ class ReviewService:
             raise HTTPException(400, "User is not the owner of this review")
 
         await self.review_repository.update(review, review_data.model_dump())
+        await self.room_repository.avg_rating(review.room_id)
         return ReviewResponse.model_validate(review)
 
 
@@ -112,4 +114,5 @@ class ReviewService:
             raise HTTPException(400, "User is not the owner of this review")
 
         await self.review_repository.delete(review)
+        await self.room_repository.avg_rating(review.room_id)
         return ReviewResponse.model_validate(review)

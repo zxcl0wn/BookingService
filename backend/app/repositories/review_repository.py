@@ -40,18 +40,6 @@ class ReviewRepository:
         return review
 
 
-    async def avg_rating(self, room_id: int) -> float:  # TODO: Добавить корректный подсчёт рейтинга
-        sum_rating = await self.db.execute(
-            select(func.sum(Review.rating).where(Review.room_id==room_id))
-        )
-        count_result = await self.db.execute(
-            select(func.count(Review.id)).where(Review.room_id == room_id)
-        )
-        sum_rating = sum_rating.scalar()
-        count = count_result.scalar()
-        return sum_rating / count if count else 0
-
-
     async def get_by_booking_code(self, booking_code: str) -> Review|None:
         result = await self.db.execute(
             select(Review).where(Review.booking_code==booking_code)
