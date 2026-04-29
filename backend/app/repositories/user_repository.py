@@ -75,3 +75,11 @@ class UserRepository:
             select(User).where(User.phone==phone)
         )
         return user.scalar_one_or_none()
+
+
+    async def update_avatar(self, user_id: int, avatar_path: str | None) -> User:
+        user = await self.get_by_id(user_id)
+        user.photo = avatar_path
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user

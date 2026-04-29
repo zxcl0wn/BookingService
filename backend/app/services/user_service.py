@@ -1,14 +1,17 @@
 from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..core.minio_handler import MinioHandler
 from ..models import User
 from ..repositories import UserRepository
 from ..schemas.user_schema import UserResponse, UserCreate, UserUpdate
 from sqlalchemy.exc import IntegrityError
+from ..core.config import settings
 
 
 class UserService:
     def __init__(self, db: AsyncSession):
         self.user_repository = UserRepository(db)
+        self.minio_handler = MinioHandler()
 
 
     async def get_all(self) -> list[UserResponse]:
@@ -73,8 +76,31 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
 
-    async def upload_photo(file: UploadFile|None = None):
-        if not file:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No file uploaded")
 
-        contents = await file.read()
+    async def upload_avatar(self, current_user_id: int, file: UploadFile|None, current_user_photo: str|None):
+        if not file.content_type.startswith('image/'):
+            raise HTTPException(400, "File must be an image")
+
+        if current_user_photo:
+            await self.minio_handler.delete_file(settings.minio.user_avatars_bucket, current_user_photo)
+
+        new_file_name = await self.minio_handler.upload_user_photo(current_user_id, file)
+        await self.user_repository.update_avatar(current_user_id, new_file_name)
+
+        url = await self.minio_handler.get_public_url(settings.minio.user_avatars_bucket, new_file_name)
+        return {
+            "url": url,
+            "file_name": new_file_name
+        }
+
+
+    async def delete_avatar(self, current_user_id: int, current_user_photo: str|None):
+        if not current_user_photo:
+            raise HTTPException(404, "No avatar to delete")
+
+        await self.minio_handler.delete_file(settings.minio.user_avatars_bucket, current_user_photo)
+        await self.user_repository.update_avatar(current_user_id, None)
+
+        return {
+            "message": "Avatar deleted"
+        }

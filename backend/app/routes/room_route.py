@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.util import await_only
+
 from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate, BookingResponse, BookingCreate
 from ..core.database import get_db
 from ..services import RoomService, ReviewService, BookingService
@@ -99,3 +101,26 @@ async def create_booking(
 ):
     service = BookingService(db)
     return await service.create(booking, room_id, current_user.id)
+
+
+@router.post("/{room_id}/upload-photo")
+async def upload_room_photo(
+        room_id: int,
+        file: UploadFile,
+        is_main: bool = Form(False),
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    service = RoomService(db)
+    return await service.upload_photo(room_id, current_user.id, file, is_main)
+
+
+@router.delete("/{room_id}/delete-photo")
+async def delete_room_photo(
+        room_id: int,
+        file_name: str,
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    service = RoomService(db)
+    return await service.delete_room_photo(room_id, current_user.id, file_name)

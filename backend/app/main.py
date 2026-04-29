@@ -6,9 +6,11 @@ from .routes.review_route import router as review_router
 from .routes.tag_route import router as tag_router
 from .routes.user_route import router as user_router
 from .auth.routes.auth_router import router as auth_router
+from .core.minio_handler import MinioHandler
 
 
 app = FastAPI()
+minio_handler = MinioHandler()
 
 @app.get("/")
 async def test():
@@ -27,3 +29,4 @@ app.include_router(auth_router)
 @app.on_event("startup")
 async def startup():
     await init_db()
+    await minio_handler.create_buckets()

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models import Room, Booking, Review
+from ..models import Room, Booking, Review, RoomPhoto
 from sqlalchemy import select, func
 
 
@@ -62,3 +62,52 @@ class RoomRepository:
         count = count_result.scalar()
         room.rating = sum_rating / count if count else 0
         await self.db.commit()
+
+
+    async def upload_photo(self, room_id: int, file_name: str, is_main: bool = False) -> RoomPhoto:
+        new_photo = RoomPhoto(
+            room_id=room_id,
+            photo_url=file_name,
+            is_main=is_main)
+
+        self.db.add(new_photo)
+        await self.db.commit()
+        await self.db.refresh(new_photo)
+        return new_photo
+
+
+    async def delete_room_photo(self, room_id: int, file_name: str):
+        result = await self.db.execute(
+            select(RoomPhoto).where(
+                RoomPhoto.room_id==room_id,
+                RoomPhoto.photo_url==file_name
+            )
+        )
+        photo = result.scalar_one_or_none()
+        if not photo:
+            return None
+
+        await self.db.delete(photo)
+        await self.db.commit()
+        return photo
+
+
+    async def get_all_room_photos(self, room_id: int) -> list[RoomPhoto]:
+        result = await self.db.execute(
+            select(RoomPhoto).filter(RoomPhoto.room_id == room_id)
+        )
+        return result.scalars().all()
+
+
+    async def set_random_photo_as_main(self, room_id: int) -> None:
+        result = await self.db.execute(
+            select(RoomPhoto)
+            .where(RoomPhoto.room_id == room_id)
+            .order_by(RoomPhoto.id.asc())
+            .limit(1)
+        )
+        photo = result.scalar_one_or_none()
+
+        if photo:
+            photo.is_main = True
+            await self.db.commit()

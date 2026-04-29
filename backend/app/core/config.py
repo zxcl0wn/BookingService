@@ -39,11 +39,28 @@ class EmailSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 
 
+class MinioSettings(BaseSettings):
+    endpoint: str
+    access_key: str
+    secret_key: str
+    secure: bool
+    user_avatars_bucket: str = "user-avatars"
+    room_photos_bucket: str = "room-photos"
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf8",
+        extra="ignore",
+        env_prefix="MINIO_"
+    )
+
+
 class Settings(BaseSettings):
     db: DbSettings = DbSettings()
     auth_jwt: AuthJWT = AuthJWT()
     redis: RedisSettings = RedisSettings()
     email: EmailSettings = EmailSettings()
+    minio: MinioSettings = MinioSettings()
 
 
 settings = Settings()

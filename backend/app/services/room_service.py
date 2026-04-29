@@ -1,5 +1,8 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..core.config import settings
+from ..core.minio_handler import MinioHandler
 from ..repositories import RoomRepository, TagRepository, TagRoomRepository
 from ..schemas.room_schema import RoomUpdate, RoomCreate, RoomResponse
 
@@ -9,6 +12,7 @@ class RoomService:
         self.room_repository = RoomRepository(db)
         self.tag_repository = TagRepository(db)
         self.tag_room_repository = TagRoomRepository(db)
+        self.minio_handler = MinioHandler()
 
 
     async def get_all(self) -> list[RoomResponse]:
@@ -88,3 +92,58 @@ class RoomService:
         await self.tag_room_repository.delete_tags(room_id, tag_ids)
         room = self.room_repository.get_by_id(room_id)
         return RoomResponse.model_validate(room)
+
+
+    async def upload_photo(
+            self,
+            room_id: int,
+            current_user_id: int,
+            file: UploadFile,
+            is_main: bool
+    ):
+        room = await self.room_repository.get_by_id(room_id)
+        if not file.content_type.startswith('image/'):
+            raise HTTPException(400, "File must be an image")
+
+        if current_user_id != room.owner_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+
+        all_room_photos = await self.room_repository.get_all_room_photos(room_id)
+        if len(all_room_photos) == 0:
+            is_main = True
+
+        file_name = await self.minio_handler.upload_room_photo(room_id, file)
+        await self.room_repository.upload_photo(room_id, file_name, is_main)
+
+        url = await self.minio_handler.get_public_url(settings.minio.room_photos_bucket, file_name)
+        return {
+            "url": url,
+            "file_name": file_name
+        }
+
+
+    async def delete_room_photo(
+            self,
+            room_id: int,
+            current_user_id: int,
+            file_name: str
+    ):
+        room = await self.room_repository.get_by_id(room_id)
+        if not room:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+
+        if current_user_id != room.owner_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this room")
+
+        photo = await self.room_repository.delete_room_photo(room_id, file_name)
+        if not photo:
+            raise HTTPException(404, "Photo not found")
+
+        was_main = photo.is_main
+        await self.minio_handler.delete_file(settings.minio.room_photos_bucket, file_name)
+        await self.room_repository.delete_room_photo(room_id, file_name)
+
+        if was_main:
+            await self.room_repository.set_random_photo_as_main(room_id)
+
+        return {"message": "Photo deleted successfully"}
