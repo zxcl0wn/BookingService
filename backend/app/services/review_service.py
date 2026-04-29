@@ -1,5 +1,9 @@
+from datetime import timedelta
+
+import redis
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..core.config import settings
 from ..repositories import ReviewRepository, UserRepository, RoomRepository, BookingRepository
 from ..schemas.review_schema import ReviewCreate, ReviewUpdate, ReviewResponse
 import datetime
@@ -13,6 +17,10 @@ class ReviewService:
         self.user_repository = UserRepository(db)
         self.room_repository = RoomRepository(db)
         self.booking_repository = BookingRepository(db)
+        self.redis = redis.Redis(
+            host=settings.redis.redis_host,
+            port=settings.redis.redis_port,
+            decode_responses=True)
 
 
     async def get_all(self) -> list[ReviewResponse]:
@@ -32,20 +40,28 @@ class ReviewService:
         booking = await self.booking_repository.get_by_id(booking_id)
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
-        
+
+        redis_key = f"review_code_request: {booking.booking_code}"
+        if self.redis.exists(redis_key):
+            ttl = self.redis.ttl(redis_key)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Please wait {ttl // 60} minutes before requesting another code"
+            )
+
         # Проверка: принадлежит ли бронирование пользователю
         if booking.user_id != current_user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This is not your booking")
-        
+
         # Проверка: закончилось ли проживание
         if booking.check_out > datetime.datetime.now(datetime.UTC):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Stay not finished yet")
-        
+
         # Проверка: не является ли пользователь владельцем комнаты
         room = await self.room_repository.get_by_id(booking.room_id)
         if room.owner_id == current_user_id:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Owner cannot review own room")
-        
+
         # Проверка: нет ли уже отзыва на это бронирование
         existing_review = await self.review_repository.get_by_booking_code(booking.booking_code)
         if existing_review:
@@ -61,7 +77,9 @@ class ReviewService:
             to_email=user.email,
             booking_code=booking.booking_code
         )
-        
+
+        await self.redis.setex(redis_key, timedelta(minutes=30), "1")
+
         return {
             "message": "Verification code has been sent to your email",
             "email": user.email
