@@ -51,15 +51,15 @@ class BookingRepository:
 
     async def get_room_owner_by_booking_id(self, booking_id: int) -> Booking|None:
         booking = await self.db.get(Booking, booking_id)
-        print(f'{booking = }')
+
         room = await self.db.execute(
             select(Room).where(Room.id==booking.room_id)
         )
-        print(f'{room = }')
+
         owner = await self.db.execute(
             select(User).where(User.id==room.scalars().one().owner_id)
         )
-        print(f'{owner = }')
+
         return owner.scalars().one_or_none()
 
 

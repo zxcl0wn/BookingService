@@ -41,7 +41,7 @@ class ReviewService:
         if not booking:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
-        redis_key = f"review_code_request: {booking.booking_code}"
+        redis_key = f"review_code_request:{booking.booking_code}"
         if self.redis.exists(redis_key):
             ttl = self.redis.ttl(redis_key)
             raise HTTPException(
