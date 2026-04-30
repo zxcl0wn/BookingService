@@ -9,7 +9,7 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, unique=True, nullable=False, index=True)
-    description = Column(Text, nullable=True, default=True)
+    description = Column(Text, nullable=True, default=None)
     address = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC))
     price_per_night = Column(Integer, nullable=False)

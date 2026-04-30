@@ -1,6 +1,5 @@
 import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from ..models import Booking, User, Room
 from sqlalchemy import select
