@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .core.database import init_db
 from .routes.booking_route import router as booking_router
@@ -9,7 +10,15 @@ from .auth.routes.auth_router import router as auth_router
 from .core.minio_handler import MinioHandler
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await init_db()
+    await minio_handler.create_buckets()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 minio_handler = MinioHandler()
 
 @app.get("/")
@@ -24,9 +33,3 @@ app.include_router(review_router)
 app.include_router(tag_router)
 app.include_router(user_router)
 app.include_router(auth_router)
-
-
-@app.on_event("startup")
-async def startup():
-    await init_db()
-    await minio_handler.create_buckets()

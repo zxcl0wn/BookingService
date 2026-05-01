@@ -14,14 +14,14 @@ class UserService:
         self.minio_handler = MinioHandler()
 
 
-    async def get_all(self) -> list[UserResponse]:
-        users = await self.user_repository.get_all()
+    async def get_all(self, skip: int, limit: int) -> list[UserResponse]:
+        users = await self.user_repository.get_all(skip=skip, limit=limit)
         return [UserResponse.model_validate(user) for user in users]
 
 
     async def get_by_id(self, user_id: int) -> UserResponse:
         user = await self.user_repository.get_by_id(user_id)
-        print(f'{user = }')
+
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return UserResponse.model_validate(user)

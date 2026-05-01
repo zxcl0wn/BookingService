@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
@@ -63,4 +64,8 @@ class Settings(BaseSettings):
     minio: MinioSettings = MinioSettings()
 
 
-settings = Settings()
+@lru_cache
+def get_setting():
+    return Settings()
+
+settings = get_setting()
