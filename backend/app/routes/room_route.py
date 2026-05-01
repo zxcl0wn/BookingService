@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, Form
+from fastapi.params import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.util import await_only
 
@@ -15,9 +16,16 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[RoomResponse])
-async def get_rooms(db: AsyncSession = Depends(get_db)):
+async def get_rooms(
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, gt=0),
+        db: AsyncSession = Depends(get_db)
+):
     service = RoomService(db)
-    return await service.get_all()
+    return await service.get_all(
+        skip=skip,
+        limit=limit
+    )
 
 
 @router.get("/{room_id}", response_model=RoomResponse)
@@ -124,3 +132,14 @@ async def delete_room_photo(
 ):
     service = RoomService(db)
     return await service.delete_room_photo(room_id, current_user.id, file_name)
+
+
+@router.get("/{room_id}/reviews")
+async def get_all_review_by_room_id(
+        room_id: int,
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, ge=0),
+        db: AsyncSession = Depends(get_db)
+):
+    service = RoomService(db)
+    return await service.get_all_review_by_room_id(room_id, skip, limit)

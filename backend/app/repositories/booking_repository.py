@@ -10,8 +10,10 @@ class BookingRepository:
         self.db = db
 
 
-    async def get_all(self) -> list[Booking]:
-        result = await self.db.execute(select(Booking))
+    async def get_all(self, skip: int, limit: int) -> list[Booking]:
+        result = await self.db.execute(
+            select(Booking).offset(skip).limit(limit)
+        )
         return result.scalars().all()
 
 

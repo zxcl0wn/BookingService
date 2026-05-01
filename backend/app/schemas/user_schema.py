@@ -13,7 +13,7 @@ class UserBase(BaseModel):
 class UserResponse(UserBase):
     id: int = Field(..., description="ID")
     created_at: datetime = Field(..., description="Created At")
-    photo: str|None = Field(None, description="Photo")
+    photo: PhoneNumber|None = Field(None, description="Photo")
 
     class Config:
         from_attributes = True

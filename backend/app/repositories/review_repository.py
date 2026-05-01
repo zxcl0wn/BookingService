@@ -8,13 +8,22 @@ class ReviewRepository:
         self.db = db
 
 
-    async def get_all(self) -> list[Review]:
-        result = await self.db.execute(select(Review))
+    async def get_all(self, skip: int, limit: int) -> list[Review]:
+        result = await self.db.execute(
+            select(Review).offset(skip).limit(limit)
+        )
         return result.scalars().all()
 
 
     async def get_by_id(self, review_id: int) -> Review|None:
         return await self.db.get(Review, review_id)
+
+
+    async def get_all_by_room_id(self, room_id: int, skip: int, limit: int):
+        reviews = await self.db.execute(
+            select(Review).where(Review.room_id==room_id).offset(skip).limit(limit)
+        )
+        return reviews.scalars().all()
 
 
     async def create(self, review: dict) -> Review:

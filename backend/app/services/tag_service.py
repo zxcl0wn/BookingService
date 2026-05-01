@@ -9,8 +9,8 @@ class TagService:
         self.tag_repository = TagRepository(db)
 
 
-    async def get_all(self) -> list[TagResponse]:
-        tags = await self.tag_repository.get_all()
+    async def get_all(self, skip: int, limit: int) -> list[TagResponse]:
+        tags = await self.tag_repository.get_all(skip=skip, limit=limit)
         return [TagResponse.model_validate(tag) for tag in tags]
 
 

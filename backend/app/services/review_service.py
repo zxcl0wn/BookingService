@@ -23,8 +23,8 @@ class ReviewService:
             decode_responses=True)
 
 
-    async def get_all(self) -> list[ReviewResponse]:
-        reviews = await self.review_repository.get_all()
+    async def get_all(self, skip: int, limit: int) -> list[ReviewResponse]:
+        reviews = await self.review_repository.get_all(skip=skip, limit=limit)
         return [ReviewResponse.model_validate(review) for review in reviews]
 
 
@@ -78,7 +78,7 @@ class ReviewService:
             booking_code=booking.booking_code
         )
 
-        await self.redis.setex(redis_key, timedelta(minutes=30), "1")
+        self.redis.setex(redis_key, 60*30, "1")
 
         return {
             "message": "Verification code has been sent to your email",

@@ -9,8 +9,10 @@ class UserRepository:
         self.db = db
 
 
-    async def get_all(self) -> list[User]:
-        result = await self.db.execute(select(User))
+    async def get_all(self, skip:int, limit: int) -> list[User]:
+        result = await self.db.execute(
+            select(User).offset(skip).limit(limit)
+        )
         return result.scalars().all()
 
 

@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, UploadFile, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
-
 from ..auth.services.auth_services import get_current_user
 from ..models import User
 from ..schemas import UserResponse, UserUpdate
 from ..core.database import get_db
 from ..services import UserService
-from ..core.minio_handler import MinioHandler
+
 
 
 router = APIRouter(
@@ -17,12 +15,19 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[UserResponse])
-async def get_users(db: AsyncSession = Depends(get_db)):
+async def get_users(
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, gt=0),
+        db: AsyncSession = Depends(get_db)
+):
     service = UserService(db)
-    return await service.get_all()
+    return await service.get_all(
+        skip=skip,
+        limit=limit
+    )
 
 
-# Специфичные routes ПЕРЕД параметризованными
+
 @router.post("/upload-avatar")
 async def upload_photo(
         file: UploadFile,

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from ..auth.services.auth_services import get_current_user
 from ..models import User
 from ..schemas import BookingResponse, BookingUpdate
@@ -13,9 +13,16 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[BookingResponse])
-async def get_bookings(db: AsyncSession = Depends(get_db)):
+async def get_bookings(
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, gt=0),
+        db: AsyncSession = Depends(get_db)
+):
     service = BookingService(db)
-    return await service.get_all()
+    return await service.get_all(
+        skip=skip,
+        limit=limit
+    )
 
 
 @router.get("/{booking_id}", response_model=BookingResponse)

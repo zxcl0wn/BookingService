@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from ..auth.services.auth_services import get_current_user
 from ..models import User
@@ -15,9 +14,16 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[ReviewResponse])
-async def get_reviews(db: AsyncSession = Depends(get_db)):
+async def get_reviews(
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, gt=0),
+        db: AsyncSession = Depends(get_db)
+):
     service = ReviewService(db)
-    return await service.get_all()
+    return await service.get_all(
+        skip=skip,
+        limit=limit
+    )
 
 
 @router.get("/{review_id}", response_model=ReviewResponse)

@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from ..core.config import settings
 from ..core.minio_handler import MinioHandler
-from ..repositories import RoomRepository, TagRepository, TagRoomRepository
+from ..repositories import RoomRepository, TagRepository, TagRoomRepository, ReviewRepository
+from ..schemas import ReviewResponse
 from ..schemas.room_schema import RoomUpdate, RoomCreate, RoomResponse
 
 
@@ -11,12 +11,13 @@ class RoomService:
     def __init__(self, db: AsyncSession):
         self.room_repository = RoomRepository(db)
         self.tag_repository = TagRepository(db)
+        self.review_repository = ReviewRepository(db)
         self.tag_room_repository = TagRoomRepository(db)
         self.minio_handler = MinioHandler()
 
 
-    async def get_all(self) -> list[RoomResponse]:
-        rooms = await self.room_repository.get_all()
+    async def get_all(self, skip: int, limit: int) -> list[RoomResponse]:
+        rooms = await self.room_repository.get_all(skip=skip, limit=limit)
         return [RoomResponse.model_validate(room) for room in rooms]
 
 
@@ -147,3 +148,8 @@ class RoomService:
             await self.room_repository.set_random_photo_as_main(room_id)
 
         return {"message": "Photo deleted successfully"}
+
+
+    async def get_all_review_by_room_id(self, room_id: int, skip: int, limit) -> list[ReviewResponse]:
+        reviews = await self.review_repository.get_all_by_room_id(room_id, skip, limit)
+        return [ReviewResponse.model_validate(review) for review in reviews]

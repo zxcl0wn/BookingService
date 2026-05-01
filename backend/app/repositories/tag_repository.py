@@ -8,8 +8,10 @@ class TagRepository:
         self.db = db
 
 
-    async def get_all(self) -> list[Tag]:
-        result = await self.db.execute(select(Tag))
+    async def get_all(self, skip: int, limit: int) -> list[Tag]:
+        result = await self.db.execute(
+            select(Tag).offset(skip).limit(limit)
+        )
         return result.scalars().all()
 
 

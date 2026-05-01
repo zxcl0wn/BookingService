@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..schemas import TagResponse, TagCreate, TagUpdate
 from ..core.database import get_db
@@ -12,9 +12,16 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[TagResponse])
-async def get_tags(db: AsyncSession = Depends(get_db)):
+async def get_tags(
+        skip: int = Query(0, ge=0),
+        limit: int = Query(10, gt=0),
+        db: AsyncSession = Depends(get_db)
+):
     service = TagService(db)
-    return await service.get_all()
+    return await service.get_all(
+        skip=skip,
+        limit=limit
+    )
 
 
 @router.get("/{tag_id}", response_model=TagResponse)

@@ -8,8 +8,10 @@ class RoomRepository:
         self.db = db
 
 
-    async def get_all(self) -> list[Room]:
-        result = await self.db.execute(select(Room))
+    async def get_all(self, skip: int, limit: int) -> list[Room]:
+        result = await self.db.execute(
+            select(Room).offset(skip).limit(limit)
+        )
         return result.scalars().all()
 
 

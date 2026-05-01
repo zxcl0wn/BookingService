@@ -12,8 +12,8 @@ class BookingService:
         self.room_repository = RoomRepository(db)
 
 
-    async def get_all(self) -> list[BookingResponse]:
-        bookings = await self.booking_repository.get_all()
+    async def get_all(self, skip: int, limit: int) -> list[BookingResponse]:
+        bookings = await self.booking_repository.get_all(skip=skip, limit=limit)
         return [BookingResponse.model_validate(booking) for booking in bookings]
 
 
