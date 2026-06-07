@@ -12,7 +12,6 @@ from .core.minio_handler import MinioHandler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     await init_db()
     await minio_handler.create_buckets()
     yield
