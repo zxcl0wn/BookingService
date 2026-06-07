@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import DBAPIError
 from ..repositories import BookingRepository, UserRepository, RoomRepository
 from ..schemas.booking_schema import BookingResponse, BookingCreate, BookingUpdate
 import datetime
@@ -43,7 +44,15 @@ class BookingService:
         booking_data = booking.model_dump()
         booking_data['user_id'] = current_user_id
         booking_data['room_id'] = room_id
-        new_booking = await self.booking_repository.create(booking_data)
+        try:
+            new_booking = await self.booking_repository.create(booking_data)
+        except DBAPIError as e:
+            if e.orig and e.orig.pgcode == "40001":
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Booking conflict. Please try again."
+                )
+            raise
         return BookingResponse.model_validate(new_booking)
 
 
@@ -55,7 +64,15 @@ class BookingService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the owner of this booking")
         await self.date_valid_check(booking.room_id, booking_data.check_in, booking.check_out, booking_id)
 
-        updated_booking = await self.booking_repository.update(booking, booking_data.model_dump())
+        try:
+            updated_booking = await self.booking_repository.update(booking, booking_data.model_dump())
+        except DBAPIError as e:
+            if e.orig and e.orig.pgcode == "40001":
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Booking conflict. Please try again."
+                )
+            raise
         return BookingResponse.model_validate(updated_booking)
 
 

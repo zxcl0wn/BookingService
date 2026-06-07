@@ -5,12 +5,21 @@ from .config import settings
 
 engine = create_async_engine(url=settings.db.url, echo=settings.db.echo)
 AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
+AsyncSessionLocalRR = async_sessionmaker(
+    bind=engine,
+    expire_on_commit=False,
+    execution_options={"isolation_level": "REPEATABLE READ"}
+)
 
 class Base(DeclarativeBase):
     ...
 
 async def get_db():
     async with AsyncSessionLocal() as db:
+        yield db
+
+async def get_db_rr():
+    async with AsyncSessionLocalRR() as db:
         yield db
 
 async def init_db():

@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, UploadFile, Form
 from fastapi.params import Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
-
 from ..schemas import RoomResponse, RoomCreate, RoomUpdate, ReviewResponse, ReviewCreate, BookingResponse, BookingCreate
-from ..core.database import get_db
+from ..core.database import get_db, get_db_rr
 from ..services import RoomService, ReviewService, BookingService
 from ..auth.services.auth_services import get_current_user
 from ..models import User
@@ -105,7 +103,7 @@ async def create_booking(
         booking: BookingCreate,
         room_id: int,
         current_user: User = Depends(get_current_user),
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db_rr)
 ):
     service = BookingService(db)
     return await service.create(booking, room_id, current_user.id)
