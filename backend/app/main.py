@@ -23,7 +23,7 @@ minio_handler = MinioHandler()
 @app.get("/")
 async def test():
     return {
-        "status": "OK"
+        "status": "OK!"
     }
 
 app.include_router(booking_router)
