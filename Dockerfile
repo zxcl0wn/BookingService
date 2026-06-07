@@ -3,7 +3,7 @@ FROM python:3.14.0-alpine
 WORKDIR /backend
 
 COPY pyproject.toml ./
-RUN pip install uv && uv pip install --no-cache-dir .
+RUN pip install --no-cache-dir .
 
 COPY backend/app ./app/
 COPY backend/alembic ./alembic/
